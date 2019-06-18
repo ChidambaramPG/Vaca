@@ -1,26 +1,28 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, ImageBackground } from 'react-native';
+import { Platform, StyleSheet, Text, View, ImageBackground, TouchableOpacity, DatePickerAndroid } from 'react-native';
 import { Col, Row, Grid } from 'react-native-easy-grid';
-import { Container, Header, Segment, Button, Icon, DatePicker } from 'native-base';
+import { Container, Header, Segment, Button, Icon } from 'native-base';
 import SegmentControl from 'react-native-segment-controller';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { incrAdult, decrAdult, incrChild, decrChild, selectTravelType, selectTravelClass, setAirportsList } from '../actions/SearchAction';
+import TripType from './../components/TripType';
+import TripClass from './../components/TripClass';
+import AirportSelection from './../components/AirportSelection';
+import DateSelection from './../components/DateSelection';
+import PeopleCount from '../components/PeopleCount';
+import SearchFlights from  '../components/SearchFlights';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
-export default class Search extends Component {
+class Search extends Component {
 
     constructor(props){
         super(props);
-        this.hadleTabPressEvent.bind(this);
-        this.state = {
-            selectedIndex:0,
-            todaysDate:new Date(),
-        }
     }
 
-    hadleTabPressEvent = (event) => {
-        // alert(event)
-        this.setState({
-            selectedIndex:event
-        })
+    handleSearch = () =>{
+        alert(JSON.stringify(this.props.search))
     }
 
     render() {
@@ -28,97 +30,40 @@ export default class Search extends Component {
         return (
            <Container>
                 <Grid>
-                    <Row style={{ backgroundColor:'#4c4c4c' }} size={1}>
-                        <ImageBackground source={require('../../assets/images/resized_flight_wing_03.png')} style={{ width: '100%', height: '100%' }}>
-                            <View style={{ marginTop:50,marginRight:20,marginLeft:20 }}>
-                                <SegmentControl
-                                    values={['One Way', 'Return', 'Multi City']}
-                                    selectedIndex={ this.state.selectedIndex}
-                                    height={40}                                
-                                    borderRadius={10}
-                                    onTabPress={ this.hadleTabPressEvent }
-                                    activeTabStyle={{ backgroundColor: '#ef534a', borderColor: '#ffffff' }}
-                                    tabStyle={{ backgroundColor: '#ffffff', borderColor: '#ffffff' }}
-                                    tabTextStyle={{ color:'#f27d76' }}
-                                    
-                                />
-                            </View>
-                        </ImageBackground>
-                    </Row>
-                    <Row style={{ backgroundColor: '#ffffff' }} size={3}>
+                    <Spinner
+                        visible={this.props.search.loadingStat}
+                        textContent={'Loading...'}
+                        textStyle={styles.spinnerTextStyle}
+                    />
+                    <TripType/>
 
-                        <Grid style={{ marginLeft:20,marginRight:20,marginTop:-30,marginBottom:10,borderWidth:1,borderRadius:10,borderColor:'#f4f4f4',backgroundColor:'#ffffff' }}>
-                            <Row size={2}>
-                                <Col style={{ flex: 2, alignItems: 'center', marginTop: 20, marginLeft: 10 }} size={3}>
-                                    <Text style={{ marginTop:10,fontSize:15 }}>From</Text>
-                                    <Text style={{ marginTop: 5, fontSize: 30 }}>DEL</Text>
-                                    <Text style={{ marginTop: 5, fontSize: 15 }}>New Delhi</Text>
-                                </Col>   
-                                <Col style={{ flex: 2, alignItems: 'center', marginTop: 20,marginRight:10}} size={3}>
-                                    <Text style={{ marginTop: 10, fontSize: 15 }}>To</Text>
-                                    <Text style={{ marginTop: 5, fontSize: 30 }}>BOM</Text>
-                                    <Text style={{ marginTop: 5, fontSize: 15 }}>Mumbai</Text>
-                                </Col>  
+                    <Row style={{ backgroundColor: '#ffffff' }} size={75} >
+
+                        <Grid style={{ marginLeft:20,marginRight:20,marginTop:-30,marginBottom:10,borderWidth:1,borderRadius:10,borderColor:'#dddddd',backgroundColor:'#ffffff' }}>
                             
-                            </Row>
-                            <Row size={2}>
-                                <Col style={{ flex: 2, alignItems: 'center', marginTop: 20, marginLeft: 10 }} size={3}>
-                                    
-                                    <Text style={{ marginTop: 5, fontSize: 20 }}>Departure</Text>
-                                    <DatePicker
-                                        defaultDate={new Date()}
-                                        minimumDate={new Date()}
-                                        locale={"en"}
-                                        timeZoneOffsetInMinutes={undefined}
-                                        modalTransparent={false}
-                                        animationType={"fade"}
-                                        androidMode={"default"}
-                                        placeHolderText=''
-                                        textStyle={{ color: "ef534a" }}
-                                        placeHolderTextStyle={{ color: "#d3d3d3" }}
-                                        onDateChange={this.setDate}
-                                        disabled={false}
-                                    />
-                                    
-                                </Col>                               
-                                <Col style={{ flex: 2, alignItems: 'center', marginTop: 20, marginRight: 10 }} size={3}>
-                                   
-                                    <Text style={{ marginTop: 5, fontSize: 20 }}>Return</Text>
-                                    <DatePicker
-                                        defaultDate={new Date()}
-                                        minimumDate={new Date()}
-                                        locale={"en"}
-                                        timeZoneOffsetInMinutes={undefined}
-                                        modalTransparent={false}
-                                        animationType={"fade"}
-                                        androidMode={"default"}
-                                        placeHolderText=''
-                                        textStyle={{ color: "ef534a",textAlign:'center' }}
-                                        placeHolderTextStyle={{ color: "#d3d3d3" }}
-                                        onDateChange={this.setDate}
-                                        disabled={false}
-                                    />
-                                    
-                                </Col>  
-                            </Row>
-                            <Row size={1} style={{ width:'75%',marginLeft:50,marginRight:50,borderSize:2,borderColor:'#f4f4f4' }}>
+                            <AirportSelection navigation={this.props.navigation}/>
 
-                                
+                            <View style={styles.lineStyle} />
+
+                            <DateSelection/>
+
+                            <View style={styles.lineStyle} />
+
+                            <Row size={1} > 
+
+                                <PeopleCount />
 
                             </Row>
-                            <Row size={1} style={{ width:'75%',marginLeft:50,marginRight:50,borderSize:2,borderColor:'#f4f4f4' }}>
+                            
+                            <View style={styles.lineStyle} />
 
+                            <TripClass/>   
 
-
-                            </Row>
-                            <Row size={1}>
-
-                                <Button rounded style={{ width:'75%',marginLeft:50,marginRight:50 }} danger>
-                                    <Text style={{ width: '100%', textAlign: 'center', color: '#ffffff' }}>Search</Text>
-                                </Button>
-                            </Row>
                         </Grid>
 
+                    </Row>
+                    <Row style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 5 }} size={10}>
+                        <SearchFlights navigation={this.props.navigation}/>
                     </Row>
                 </Grid>
            </Container> 
@@ -127,8 +72,65 @@ export default class Search extends Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        
+    lineStyle: {
+        borderWidth: 0.5,
+        borderColor: '#f4f4f4',
+        margin: 10,
     },
-    
+    redBackground:{
+        backgroundColor: 'red',
+        width:'100%'
+    },
+    countButton:{
+        alignSelf: 'flex-end', 
+        paddingTop: 0, 
+        paddingBottom: 0, 
+        height: 20, 
+        width: 20, 
+        justifyContent: "center"
+    },
+    countIcon: { 
+        marginLeft: 0, 
+        marginRight: 0, 
+        fontSize: 10,
+        color:'#4c4c4c'
+    },
+    countText:{
+        alignSelf: 'flex-end',
+        paddingLeft: 5,
+        paddingBottom:3,
+        height: 20,
+        width: 20,
+        justifyContent: "center",
+        fontSize:15
+    },
+    countType:{
+        flex: 7, 
+        alignItems: 'center',
+        marginTop:10
+    },
+    spinnerTextStyle: {
+        color: '#FFF'
+    },
 });
+
+const mapDispatchToProps = dispatch => (
+  bindActionCreators(
+    {
+        incrAdult, 
+        decrAdult, 
+        incrChild, 
+        decrChild, 
+        selectTravelType, 
+        selectTravelClass, 
+        setAirportsList
+    }, 
+  dispatch)
+);
+
+const mapStateToProps = (state) => {
+  const { search } = state
+  return { search }
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(Search);
